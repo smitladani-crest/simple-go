@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"strings"
 
 	"github.com/gorilla/mux"
 )
@@ -14,14 +15,21 @@ var ipAddress string
 
 const indexPage = `
 <h1>Hello Go Learner</h1>
-<h3>Your IP - %s</h3>
-<h4>Served from %s</h4>
+<h2>Your IP - %s</h2>
+<p><b>Request Header</b> - %s</p>
+<h3>Served from %s</h3>
 `
 
 func indexPageHandler(response http.ResponseWriter, request *http.Request) {
 	log.Printf("%s %s %s\n", request.RemoteAddr, request.Method, request.RequestURI)
 
-	fmt.Fprintf(response, indexPage, request.RemoteAddr, ipAddress)
+	var headerString string
+
+	for name, value := range request.Header {
+		headerString += name + ": " + strings.Join(value, ", ") + "<br/>"
+	}
+
+	fmt.Fprintf(response, indexPage, request.RemoteAddr, headerString, ipAddress)
 }
 
 var router = mux.NewRouter()
