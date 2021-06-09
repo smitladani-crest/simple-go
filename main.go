@@ -14,7 +14,7 @@ import (
 var ipAddress string
 
 const indexPage = `
-<h1>Hello Go Learner</h1>
+<h1 style="color: %s">Hello Learner</h1>
 <h2>Your IP - %s</h2>
 <p><b>Request Header</b> - %s</p>
 <h3>Served from %s</h3>
@@ -23,13 +23,19 @@ const indexPage = `
 func indexPageHandler(response http.ResponseWriter, request *http.Request) {
 	log.Printf("%s %s %s\n", request.RemoteAddr, request.Method, request.RequestURI)
 
+	color := mux.Vars(request)["color"]
+	if color == "" {
+		// if no color is provided in the URL then black is used
+		color = "black"
+	}
+
 	var headerString string
 
 	for name, value := range request.Header {
 		headerString += name + ": " + strings.Join(value, ", ") + "<br/>"
 	}
 
-	fmt.Fprintf(response, indexPage, request.RemoteAddr, headerString, ipAddress)
+	fmt.Fprintf(response, indexPage, color, request.RemoteAddr, headerString, ipAddress)
 }
 
 var router = mux.NewRouter()
@@ -86,6 +92,8 @@ func main() {
 
 		fmt.Fprintf(response, "healthy")
 	})
+
+	router.HandleFunc("/{color}", indexPageHandler)
 
 	http.Handle("/", router)
 
