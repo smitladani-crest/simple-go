@@ -81,6 +81,12 @@ func main() {
 
 	router.HandleFunc("/", indexPageHandler)
 
+	router.HandleFunc("/health", func(response http.ResponseWriter, request *http.Request) {
+		log.Printf("%s %s %s\n", request.RemoteAddr, request.Method, request.RequestURI)
+
+		fmt.Fprintf(response, "healthy")
+	})
+
 	http.Handle("/", router)
 
 	log.Println("Server is listening at 0.0.0.0:8080")
